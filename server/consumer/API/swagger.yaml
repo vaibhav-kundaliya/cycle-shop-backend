@@ -1,0 +1,1716 @@
+openapi: 3.0.3
+info:
+  title: Consumer Ecommerce API
+  description: |-
+    This is the Consymer API documentation
+  termsOfService: https://www.google.com/
+  version: 1.0.11
+
+servers:
+  - url: http://localhost:8001
+tags:
+  - name: Registeration
+    description: All the API for consumer login/sign up
+  - name: Cart
+    description: All the cart API
+  - name: Order
+    description: Operations about Order
+  - name: Product
+    description: Operations about Products
+  - name: Profile
+    description: Operations about Profile
+  - name: Review
+    description: Operations that include reviews
+paths:
+  # Registeration
+  /signup:
+    post:
+      tags:
+        - Registeration
+      summary: Add user
+      description: Used to add all the consumer detailes and sends email
+      requestBody:
+        description: Used to add new user to the DB
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                confirmPassword:
+                  type: string
+                phoneNumber:
+                  type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                      lastName:
+                        type: string
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      phoneNumber:
+                        type: string
+                      _id:
+                        type: string
+                      address:
+                        type: array
+                        items:
+                          type: object
+        "400":
+          description: Invaild Request
+          content:
+            application/json:
+              example:
+                message: "Invaild Request confirm the credentials and try again"
+                status: "Fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /login:
+    post:
+      tags:
+        - Registeration
+      summary: Login User
+      description: Used by the user to login into the system
+      requestBody:
+        description: Used to add new user to the DB
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      firstName:
+                        type: string
+                      lastName:
+                        type: string
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      phoneNumber:
+                        type: string
+                      address:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            country:
+                              type: string
+                            state:
+                              type: string
+                            city:
+                              type: string
+                            zipCode:
+                              type: number
+                            addressLine1:
+                              type: string
+                            addressLine2:
+                              type: string
+                            _id:
+                              type: string
+        "400":
+          description: Incorrect details
+          content:
+            application/json:
+              example:
+                message: "Confirm the credentials and try again"
+                status: "Fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /forget:
+    post:
+      tags:
+        - Registeration
+      summary: User Forgot his password
+      description: Used by user when he forgets his password
+      requestBody:
+        description: Used to add new user to the DB
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: nikolteslaq23@gmail.com
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: The link was sent to your email
+                  data:
+                    type: string
+                    format: uri
+                    example: http://localhost:3000/NewPassword
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /reset/{token}/{id}:
+    post:
+      parameters:
+        - name: token
+          in: path
+          description: Token giving in the email
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ID the consumer that was given in the email.
+          required: true
+          schema:
+            type: string
+      tags:
+        - Registeration
+      summary: Reset User Password
+      description: Used by user when he wants to reset his password
+      requestBody:
+        description: This will help user to reset thier password
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                confirmPassword:
+                  type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: "The link was sent to you email"
+                newPass: "New Password"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              example:
+                message: "This user dosen't exits."
+                status: "Fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  # Profile API
+  /getUser:
+    get:
+      tags:
+        - Profile
+      summary: Get all the user detailes
+      description: Used to get all the user detailes
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Here is the resource data you wanted
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      firstName:
+                        type: string
+                      lastName:
+                        type: string
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      phoneNumber:
+                        type: string
+                      address:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            country:
+                              type: string
+                            state:
+                              type: string
+                            city:
+                              type: string
+                            zipCode:
+                              type: number
+                            addressLine1:
+                              type: string
+                            addressLine2:
+                              type: string
+                            _id:
+                              type: string
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /getUserAddress:
+    get:
+      tags:
+        - Profile
+      summary: Get all the user detailes
+      description: Used to get all the user detailes
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        country:
+                          type: string
+                        state:
+                          type: string
+                        city:
+                          type: string
+                        zipCode:
+                          type: number
+                        addressLine1:
+                          type: string
+                        addressLine2:
+                          type: string
+                        _id:
+                          type: string
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /addAddress:
+    post:
+      tags:
+        - Profile
+      summary: Add Address for user
+      description: User can add address
+      requestBody:
+        description: Enter the address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country:
+                  type: string
+                state:
+                  type: string
+                city:
+                  type: string
+                zipCode:
+                  type: number
+                addressLine1:
+                  type: string
+                addressLine2:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Resource updated successfully.
+                  data:
+                    type: object
+                    properties:
+                      country:
+                        type: string
+                        example: Inddgiwa6
+                      state:
+                        type: string
+                        example: q
+                      city:
+                        type: string
+                        example: dd
+                      zipCode:
+                        type: integer
+                        example: 123
+                      addressLine1:
+                        type: string
+                        example: ff
+                      addressLine2:
+                        type: string
+                        example: gg
+        "400":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: This address is already present. Please try again.
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /deleteAddress:
+    post:
+      tags:
+        - Profile
+      summary: Add Address for user
+      description: User can add address
+      requestBody:
+        description: Enter the address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addressID:
+                  type: string
+                  example: 648847fed08ba57bce246add
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Resource deleted successfully.
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /updateConsumer:
+    post:
+      tags:
+        - Profile
+      summary: Add Address for user
+      description: User can add address
+      requestBody:
+        description: Enter the address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                phoneNumber:
+                  type: string
+                age:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  # Cart API
+  /addToCart:
+    post:
+      tags:
+        - Cart
+      summary: Add item to cart
+      description: Help user to put items in cart
+      requestBody:
+        description: Enter the detailes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productID:
+                  type: string
+                  example: "Pink"
+                color:
+                  type: string
+                  example: "Green"
+                size:
+                  type: string
+                  example: "123@email.com"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      productID:
+                        type: string
+                        example: 64747d5cb8a484ee082d3cce
+                      consumerID:
+                        type: string
+                        example: 6489a0899ac46cd0ab5dd74d
+                      size:
+                        type: string
+                        example: XL
+                      quantity:
+                        type: integer
+                        example: 1
+                      color:
+                        type: string
+                        example: Red
+                      _id:
+                        type: string
+                        example: 648abb04b1a065bcbbd8760b
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "fail"
+                  message:
+                    type: string
+                    example: "Resource not found."
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /getCartItems:
+    get:
+      tags:
+        - Cart
+      summary: Get all items of the cart
+      description: User can get all the items of cart
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  productData:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        productID:
+                          type: string
+                          example: 64747d5cb8a484ee082d3cce
+                        name:
+                          type: string
+                          example: Water Shoes
+                        price:
+                          type: number
+                          example: 650
+                        image:
+                          type: string
+                          example: public\\assets\\1685355868506-Untitled design.jpg
+                        size:
+                          type: string
+                          example: XL
+                  message:
+                    type: string
+                    example: Here is the resource data you wanted
+                  subTotal:
+                    type: number
+                    example: 650
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /deleteCartItem:
+    post:
+      tags:
+        - Cart
+      summary: Delete Cart Item
+      description: User can Delete Cart Item
+      requestBody:
+        description: Enter the details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cartItemID:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              example:
+                message: "Product in cart with Cart ID: cartItemID is Deleted"
+                status: "success"
+        "400":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "Resource not found"
+                status: "fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "fail"
+  /updateCart:
+    post:
+      tags:
+        - Cart
+      summary: Update Cart for user
+      description: User can update cart
+      requestBody:
+        description: Enter the details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productID:
+                  type: string
+                size:
+                  type: string
+                quantity:
+                  type: integer
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      acknowledged:
+                        type: boolean
+                        example: true
+                      modifiedCount:
+                        type: integer
+                        example: 0
+                      upsertedId:
+                        type: string
+                        nullable: true
+                      upsertedCount:
+                        type: integer
+                        example: 0
+                      matchedCount:
+                        type: integer
+                        example: 0
+        "400":
+          description: No stock remaining
+          content:
+            application/json:
+              example:
+                message: "Product out of stock. Remaining items product.quantity"
+                status: "fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "fail"
+  /checkOutCart:
+    post:
+      tags:
+        - Cart
+      summary: Check Out Cart for user
+      description: User can check out all items in the cart
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: All the cart items have been ordered
+                  orderedItems:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 648abb04b1a065bcbbd8760b
+                        productID:
+                          type: string
+                          example: 64747d5cb8a484ee082d3cce
+                        consumerID:
+                          type: string
+                          example: 6489a0899ac46cd0ab5dd74d
+                        size:
+                          type: string
+                          example: XL
+                        quantity:
+                          type: integer
+                          example: 1
+                        color:
+                          type: string
+                          example: Red
+                        __v:
+                          type: integer
+                          example: 0
+        "400":
+          description: No stock remaining
+          content:
+            application/json:
+              example:
+                message: "Product out of stock. Remaining items product.quantity"
+                status: "fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "fail"
+  # Order API
+  /addOrder:
+    post:
+      tags:
+        - Order
+      summary: Add Address for user
+      description: User can add address
+      requestBody:
+        description: Enter the address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productID:
+                  type: string
+                size:
+                  type: string
+                quantity:
+                  type: integer
+                name:
+                  type: string
+                color:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Your order is added successfully"
+                  data:
+                    type: object
+                    properties:
+                      productID:
+                        type: string
+                        example: "647476d4b8a484ee082d3cad"
+                      orderDate:
+                        type: string
+                        format: date-time
+                        example: "2023-06-15T04:09:35.330Z"
+                      orderStatus:
+                        type: string
+                        example: "Order Confirmed"
+                      consumerID:
+                        type: string
+                        example: "6489a0899ac46cd0ab5dd74d"
+                      name:
+                        type: string
+                        example: "Ramen Pants"
+                      size:
+                        type: string
+                        example: "XL"
+                      quantity:
+                        type: integer
+                        example: 13
+                      color:
+                        type: string
+                        example: "Red"
+                      address:
+                        type: object
+                        properties:
+                          country:
+                            type: string
+                            example: "India"
+                          state:
+                            type: string
+                            example: "Gujarat"
+                          city:
+                            type: string
+                            example: "Ahmedabad"
+                          zipCode:
+                            type: integer
+                            example: 390123
+                          addressLine1:
+                            type: string
+                            example: "Ad-1"
+                          addressLine2:
+                            type: string
+                            example: "Ad-2"
+                          _id:
+                            type: string
+                            example: "6489a09c9ac46cd0ab5dd758"
+                      _id:
+                        type: string
+                        example: "648a8effe77921af18a958f3"
+                      __v:
+                        type: integer
+                        example: 0
+        "400":
+          description: The item is not avalaible
+          content:
+            application/json:
+              example:
+                message: "Resouce not found"
+                status: "fail"
+
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /getAllOrders:
+    get:
+      tags:
+        - Order
+      summary: Add Address for user
+      description: User can add address
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Here are all the orders"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        orderID:
+                          type: string
+                          example: "6489a127925d714f7104d956"
+                        name:
+                          type: string
+                          example: "Ramen Tshirt"
+                        orderDate:
+                          type: string
+                          format: date-time
+                          example: "2023-06-14T11:14:47.830Z"
+                        image:
+                          type: string
+                          example: "public\\assets\\1685354196040-1.jpg"
+                        orderStatus:
+                          type: string
+                          example: "Order Confirmed"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /getOrderByID:
+    post:
+      tags:
+        - Order
+      summary: Add Address for user
+      description: User can add address
+      requestBody:
+        description: Enter the address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderID:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Here is the data of the order"
+                  data:
+                    type: object
+                    properties:
+                      orderDate:
+                        type: string
+                        format: date-time
+                        example: "2023-04-04T18:30:00.000Z"
+                      orderStatus:
+                        type: string
+                        example: "Cancelled"
+                      consumerId:
+                        type: string
+                        example: "647985f9888e2f9af25e00e8"
+                      quantity:
+                        type: integer
+                        example: 3
+                      size:
+                        type: string
+                        example: "XL"
+                      color:
+                        type: string
+                        example: "Red"
+                      productData:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "success"
+                          data:
+                            type: object
+                            properties:
+                              _id:
+                                type: string
+                                example: "647476d4b8a484ee082d3cad"
+                              name:
+                                type: string
+                                example: "Ramen Tshirt"
+                              price:
+                                type: integer
+                                example: 500
+                              size:
+                                type: array
+                                items:
+                                  type: string
+                                  enum:
+                                    - "L"
+                                    - "XL"
+                                    - "S"
+                                    - "M"
+                                example: ["L", "XL", "S", "M"]
+                              SKU:
+                                type: string
+                                example: "51784"
+                              productDetails:
+                                type: string
+                                example: "Ramen is good"
+                              image:
+                                type: string
+                                example: "public\\assets\\1685354196040-1.jpg"
+                              quantity:
+                                type: integer
+                                example: 6961
+                              category:
+                                type: string
+                                example: "Tshirt"
+                              color:
+                                type: array
+                                items:
+                                  type: string
+                                  enum:
+                                    - "Blue"
+                                    - "Red"
+                                    - "Yellow"
+                                example: ["Blue", "Red", "Yellow"]
+                              audience:
+                                type: string
+                                example: "Boys"
+                              adminId:
+                                type: string
+                                example: "647476c8b8a484ee082d3ca7"
+                              date:
+                                type: string
+                                example: "29/05/2023"
+                              reviews:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    rating:
+                                      type: number
+                                      example: 9.8
+                                    reviewDescription:
+                                      type: string
+                                      example: "d1d11"
+                                    consumerID:
+                                      type: string
+                                      example: "647985f9888e2f9af25e00e8"
+                                    _id:
+                                      type: string
+                                      example: "6479e1d25c88bb97d1154b33"
+                                example:
+                                  - rating: 9.8
+                                    reviewDescription: "d1d11"
+                                    consumerID: "647985f9888e2f9af25e00e8"
+                                    _id: "6479e1d25c88bb97d1154b33"
+                                  - rating: 9.8
+                                    reviewDescription: "d1d11"
+                                    consumerID: "647985f9888e2f9af25e00e8"
+                                    _id: "647d602a1b51eba91d6c2cc1"
+                              __v:
+                                type: integer
+                                example: 8
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "fail"
+                  message:
+                    type: string
+                    example: "Resource not found."
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /cancelOrder:
+    post:
+      tags:
+        - Order
+      summary: Add Address for user
+      description: User can add address
+      requestBody:
+        description: Enter the address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderID:
+                  type: string
+      responses:
+        "200":
+          description: Order cancellation successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Order with Order ID 6479b35e4ccda8bda1507a1c is cancelled."
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "fail"
+                  message:
+                    type: string
+                    example: "Resource not found."
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /filterOrders:
+    post:
+      tags:
+        - Order
+      summary: Add Address for user
+      description: User can add address
+      requestBody:
+        description: Enter the address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filterMonth:
+                  type: string
+                filterYear:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              example:
+                message: "Product in cart with Cart ID: cartItemID is Deleted"
+                status: "success"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  # Review API
+  /addReview:
+    post:
+      tags:
+        - Review
+      summary: Add Review for Product
+      description: User can add Review to the product
+      requestBody:
+        description: Enter the detailes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productID:
+                  type: string
+                orderID:
+                  type: string
+                reviewDescription:
+                  type: string
+                rating:
+                  type: number
+                  example: 5.7
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                status: "success"
+                message: "Resource created successfully."
+        "400":
+          description: The item is not avalaible
+          content:
+            application/json:
+              example:
+                message: "Bad request you haven't ordered this product"
+                status: "fail"
+
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /deleteReview:
+    post:
+      tags:
+        - Review
+      summary: Delete Review for Product
+      description: User can delete Review to the product
+      requestBody:
+        description: Enter the detailes
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              reviewID: "f021mqdnj131ndw22"
+              productID: "ghsqenion123wu78"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                status: "success"
+                message: "Resource deleted successfully."
+        "400":
+          description: The item is not avalaible
+          content:
+            application/json:
+              example:
+                message: "This review ID is incorrect"
+                status: "fail"
+
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  # Product Review
+  /getBySKU:
+    post:
+      tags:
+        - Product
+      summary: Get the product by SKU
+      description: You can get all the detailes by SKU
+      requestBody:
+        description: Enter the detailes
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              SKU: "17625"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Here is the product data you want
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 647476d4b8a484ee082d3cad
+                      name:
+                        type: string
+                        example: Ramen Tshirt
+                      price:
+                        type: number
+                        format: float
+                        example: 500
+                      size:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - L
+                          - XL
+                          - S
+                          - M
+                      SKU:
+                        type: string
+                        example: 51784
+                      productDetails:
+                        type: string
+                        example: Ramen is good
+                      image:
+                        type: string
+                        example: public\\assets\\1685354196040-1.jpg
+                      quantity:
+                        type: number
+                        example: 6906
+                      category:
+                        type: string
+                        example: Tshirt
+                      color:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - Blue
+                          - Red
+                          - Yellow
+                      audience:
+                        type: string
+                        example: Boys
+                      adminId:
+                        type: string
+                        example: 647476c8b8a484ee082d3ca7
+                      date:
+                        type: string
+                        example: 29/05/2023
+                      reviews:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            rating:
+                              type: number
+                              format: float
+                              example: 9.8
+                            reviewDescription:
+                              type: string
+                              example: d1d11
+                            consumerID:
+                              type: string
+                              example: 647985f9888e2f9af25e00e8
+                            _id:
+                              type: string
+                              example: 6479e1d25c88bb97d1154b33
+        "400":
+          description: The item is not avalaible
+          content:
+            application/json:
+              example:
+                message: "Resource not found"
+                status: "fail"
+
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /feedProducts/page/limit:
+    get:
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+      tags:
+        - Product
+      summary: Get Feed Porduct
+      description: Try to get all the product in the feed
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Here is the resource data you wanted
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            SKU:
+                              type: string
+                              example: 49188
+                            name:
+                              type: string
+                              example: Ramen Pants
+                            price:
+                              type: number
+                              format: float
+                              example: 750
+                            image:
+                              type: string
+                              example: public\\assets\\1685354277872-8-aDHOn1k83nBQNSB.png
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /feedProductsPrice/page/limit:
+    get:
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+      tags:
+        - Product
+      summary: Get Feed Porduct
+      description: Try to get all the product in the feed
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Here is the resource data you wanted
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            SKU:
+                              type: string
+                              example: 49188
+                            name:
+                              type: string
+                              example: Ramen Pants
+                            price:
+                              type: number
+                              format: float
+                              example: 750
+                            image:
+                              type: string
+                              example: public\\assets\\1685354277872-8-aDHOn1k83nBQNSB.png
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /feedProductsRating/page/limit:
+    get:
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+      tags:
+        - Product
+      summary: Get Feed Porduct
+      description: Try to get all the product in the feed
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Here is the resource data you wanted
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            SKU:
+                              type: string
+                              example: 49188
+                            name:
+                              type: string
+                              example: Ramen Pants
+                            price:
+                              type: number
+                              format: float
+                              example: 750
+                            image:
+                              type: string
+                              example: public\\assets\\1685354277872-8-aDHOn1k83nBQNSB.png
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /searchProduct/keyword:
+    get:
+      parameters:
+        - name: keyword
+          in: query
+          description: Keyword to
+          schema:
+            type: integer
+      tags:
+        - Product
+      summary: Get all the product with keyboard
+      description: Try to get all the product in the feed
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        SKU:
+                          type: string
+                        name:
+                          type: string
+                        price:
+                          type: number
+                        image:
+                          type: string
+                      required:
+                        - SKU
+                        - name
+                        - price
+                        - image
+                  message:
+                    type: string
+        "400":
+          description: The item is not avalaible
+          content:
+            application/json:
+              example:
+                message: "Unauthorized access."
+                status: "fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
+  /productFilter:
+    get:
+      parameters:
+        - name: audience
+          in: query
+          description: Page number
+          schema:
+            type: integer
+        - name: category
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: minPrice
+          in: query
+          description: Page number
+          schema:
+            type: integer
+        - name: maxPrice
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+      tags:
+        - Product
+      summary: Get all the product by adding product filter
+      description: Try to get all the product in the feed
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Here is the resource data you wanted
+                  message:
+                    type: string
+                    example: Here is your data that you needed
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        SKU:
+                          type: string
+                        name:
+                          type: string
+                        image:
+                          type: string
+                        price:
+                          type: number
+        "400":
+          description: The item is not avalaible
+          content:
+            application/json:
+              example:
+                message: "Unauthorized access."
+                status: "fail"
+        "500":
+          description: Internal sever error
+          content:
+            application/json:
+              example:
+                message: "A server error has occurred"
+                status: "Fail"
